@@ -16,21 +16,21 @@ node("${NODE}") {
         if(COMMAND == "STOP"){
             stage("Stop container"){
                 sh '''
-                    docker stop --name fluentd
+                    docker stop fluentd
                 '''
             }
         }
         if(COMMAND == "RESTART"){
             stage("Stop container"){
                 sh '''
-                    docker restart --name fluentd
+                    docker restart fluentd
                 '''
             }
         }
         if(COMMAND == "REMOVE"){
             stage("Stop container"){
                 sh '''
-                    docker rm -f --name fluentd
+                    docker rm -f fluentd
                 '''
             }
         }
