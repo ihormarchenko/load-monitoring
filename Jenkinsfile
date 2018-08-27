@@ -1,22 +1,69 @@
 TEST_ENV = params.TEST_ENV ?: null
-
+COMMAND = params.COMMAND ?: "PS"
 node("${NODE}") {
     def fluent
     try {
         stage('Clone repository') {
             checkout scm
         }
-        stage('Build image') {
-            fluent = docker.build("fluent/fluentd")
-        }
-        stage('Run container'){
-            if (TEST_ENV == null) {
-                throw NullPointerException("Param TEST_ENV must be specified.")
+        if(COMMAND == "PS"){
+            stage("Stop container"){
+                sh '''
+                    docker ps -a
+                '''
             }
-            sh '''
-                docker run -d --name fluentd -e TEST_ENV=${TEST_ENV} -v jmeter-logs:/jmeter-logs/ -v gatling-logs:/gatling-logs/ fluent/fluentd
-             '''
         }
+        if(COMMAND == "STOP"){
+            stage("Stop container"){
+                sh '''
+                    docker stop --name fluentd
+                '''
+            }
+        }
+        if(COMMAND == "RESTART"){
+            stage("Stop container"){
+                sh '''
+                    docker restart --name fluentd
+                '''
+            }
+        }
+        if(COMMAND == "REMOVE"){
+            stage("Stop container"){
+                sh '''
+                    docker rm -f --name fluentd
+                '''
+            }
+        }
+        if(COMMAND == "START"){
+            stage('Run container'){
+                if (TEST_ENV == null) {
+                    throw NullPointerException("Param TEST_ENV must be specified.")
+                }
+                sh '''
+                    docker run -d --name fluentd -e TEST_ENV=${TEST_ENV} -v jmeter-logs:/jmeter-logs/ -v gatling-logs:/gatling-logs/ fluent/fluentd
+                 '''
+            }
+        }
+        if(COMMAND == "BUILD"){
+            stage('Build image') {
+                fluent = docker.build("fluent/fluentd")
+            }
+        }
+        
+        if(COMMAND == "SETUP"){
+            stage('Build image') {
+                fluent = docker.build("fluent/fluentd")
+            }
+            stage('Run container'){
+                if (TEST_ENV == null) {
+                    throw NullPointerException("Param TEST_ENV must be specified.")
+                }
+                sh '''
+                    docker run -d --name fluentd -e TEST_ENV=${TEST_ENV} -v jmeter-logs:/jmeter-logs/ -v gatling-logs:/gatling-logs/ fluent/fluentd
+                 '''
+            }
+        }
+        
     } catch (Exception e) {
         e.printStackTrace();
     } finally {
