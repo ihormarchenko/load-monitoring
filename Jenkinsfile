@@ -7,61 +7,32 @@ node("${NODE}") {
             checkout scm
         }
         if(COMMAND == "PS"){
-            stage("PS"){
-                sh '''
-                    docker ps -a
-                '''
-            }
+            info ()
         }
         if(COMMAND == "STOP"){
-            stage("Stop container"){
-                sh '''
-                    docker stop fluentd
-                '''
-            }
+            stopContainer()
         }
         if(COMMAND == "RESTART"){
-            stage("Restart container"){
-                sh '''
-                    docker restart fluentd
-                '''
-            }
+            restartContainer ()
         }
         if(COMMAND == "REMOVE"){
-            stage("Remove container"){
-                sh '''
-                    docker rm -f fluentd
-                '''
-            }
+            removeContainer ()
         }
         if(COMMAND == "START"){
-            stage('Run container'){
-                if (TEST_ENV == null) {
-                    throw new NullPointerException("Param TEST_ENV must be specified.")
-                }
-                sh '''
-                    docker run -d --name fluentd -e TEST_ENV=${TEST_ENV} -v jmeter-logs:/jmeter-logs/ -v gatling-logs:/gatling-logs/ fluent/fluentd
-                 '''
-            }
+            startContainer ()
         }
         if(COMMAND == "BUILD"){
-            stage('Build image') {
-                fluent = docker.build("fluent/fluentd")
-            }
+            buildImage ()
         }
         
         if(COMMAND == "SETUP"){
-            stage('Build image') {
-                fluent = docker.build("fluent/fluentd")
-            }
-            stage('Run container'){
-                if (TEST_ENV == null) {
-                    throw new NullPointerException("Param TEST_ENV must be specified.")
-                }
-                sh '''
-                    docker run -d --name fluentd -e TEST_ENV=${TEST_ENV} -v jmeter-logs:/jmeter-logs/ -v gatling-logs:/gatling-logs/ fluent/fluentd
-                 '''
-            }
+            buildImage ()
+            runContainer ()
+        }
+        if(COMMAND == "RESETUP"){
+            removeContainer ()
+            buildImage ()
+            runContainer ()
         }
         
     } catch (Exception e) {
@@ -77,5 +48,55 @@ node("${NODE}") {
                 e.printStackTrace();
             }
         }
+    }
+}
+def info (){
+    stage("PS"){
+        sh '''
+            docker ps -a
+        '''
+    }
+}
+def stopContainer (){
+    stage("Stop container"){
+        sh '''
+            docker stop fluentd
+        '''
+    }
+}
+def startContainer (){
+    stage("Start container"){
+        sh '''
+            docker start fluentd
+        '''
+    }
+}
+def restartContainer (){
+    stage("Restart container"){
+        sh '''
+            docker restart fluentd
+        '''
+    }
+}
+def removeContainer (){
+    stage("Remove container"){
+        sh '''
+            docker rm -f fluentd
+        '''
+    }
+}
+def runContainer (){
+    stage('Run container'){
+        if (TEST_ENV == null) {
+            throw new NullPointerException("Param TEST_ENV must be specified.")
+        }
+        sh '''
+            docker run -d --name fluentd -e TEST_ENV=${TEST_ENV} -v jmeter-logs:/jmeter-logs/ -v gatling-logs:/gatling-logs/ fluent/fluentd
+         '''
+    }
+}
+def buildImage (){
+    stage('Build image') {
+        fluent = docker.build("fluent/fluentd")
     }
 }
