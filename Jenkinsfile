@@ -56,7 +56,7 @@ node("${NODE}") {
             }
             stage('Run container'){
                 if (TEST_ENV == null) {
-                    throw Exception("Param TEST_ENV must be specified.")
+                    throw new NullPointerException("Param TEST_ENV must be specified.")
                 }
                 sh '''
                     docker run -d --name fluentd -e TEST_ENV=${TEST_ENV} -v jmeter-logs:/jmeter-logs/ -v gatling-logs:/gatling-logs/ fluent/fluentd
