@@ -7,7 +7,7 @@ node("${NODE}") {
             checkout scm
         }
         if(COMMAND == "PS"){
-            stage("Stop container"){
+            stage("PS"){
                 sh '''
                     docker ps -a
                 '''
@@ -21,14 +21,14 @@ node("${NODE}") {
             }
         }
         if(COMMAND == "RESTART"){
-            stage("Stop container"){
+            stage("Restart container"){
                 sh '''
                     docker restart fluentd
                 '''
             }
         }
         if(COMMAND == "REMOVE"){
-            stage("Stop container"){
+            stage("Remove container"){
                 sh '''
                     docker rm -f fluentd
                 '''
